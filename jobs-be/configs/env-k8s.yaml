@@ -1,0 +1,10 @@
+app:
+  name: "sukma-service"
+  port: 1234
+  mode: ""
+Mysql:
+  host: "db"
+  port: 3306
+  username: "root"
+  password: ${MYSQL_ROOT_PASSWORD}
+  Database: "jobfair"

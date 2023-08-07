@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sukma-jobfair1
+spec:
+  type: LoadBalancer
+  selector:
+    app: sukma-jobfair1
+  ports:
+    - port: 80
+      targetPort: 1234

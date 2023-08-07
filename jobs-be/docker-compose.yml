@@ -1,0 +1,29 @@
+version: "3"
+services:
+    app:
+      build: .
+      container_name: sukma-be
+      ports:
+        - "1234:1234"
+      network_mode: host
+      environment:
+          CONFIG_FILE: "docker"
+      depends_on:
+        db:
+          condition: service_healthy
+    db:
+      container_name: db
+      image: mysql
+      ports:
+        - "3306:3306"
+      environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          # MYSQL_USER: "user"
+          MYSQL_ROOT_PASSWORD: "root"
+          MYSQL_DATABASE: "jobfair"
+      volumes:
+        - ./sql/schema.sql:/docker-entrypoint-initdb.d/0_init.sql
+      healthcheck:
+          test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+          timeout: 10s
+          retries: 2

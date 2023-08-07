@@ -1,0 +1,44 @@
+FROM node:18-alpine AS build
+
+RUN apk update
+RUN apk --no-cache --virtual build-dependencies add \
+    jpeg-dev \
+    cairo-dev \
+    giflib-dev \
+    pango-dev \
+    python3 \
+    make \
+    g++ 
+
+
+# Set the working directory
+WORKDIR /fe
+
+# Add the source code to fe
+COPY . /fe
+
+# Install all the dependencies
+RUN yarn install --frozen-lockfile
+
+# Generate the build of the felication
+RUN yarn build
+
+# Production image, copy all the files and run next
+FROM node:18-alpine AS runner
+WORKDIR /fe
+
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Copy the build output to replace the default nginx contents.
+# COPY --from=build /fe/next.config.js ./
+COPY --from=build /fe/public ./public
+COPY --from=build --chown=nextjs:nodejs /fe/.next ./.next
+COPY --from=build /fe/node_modules ./node_modules
+COPY --from=build /fe/package.json ./package.json
+
+USER root
+
+EXPOSE 3000
+
+ENTRYPOINT ["yarn", "start"]
